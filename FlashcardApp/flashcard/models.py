@@ -72,7 +72,7 @@ class Flashcard(models.Model):
 
 class UserFlashcard(models.Model):
     flashcard = models.ForeignKey(Flashcard,on_delete=models.CASCADE)
-    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    user = models.ForeignKey(User,on_delete=models.CASCADE,related_name='flashcards')
 
     bin_number = models.SmallIntegerField(default=0)
 
@@ -98,7 +98,6 @@ class UserFlashcard(models.Model):
         
         #This gives us new datetime object
         self.showable = self.last_answered + BIN_MAPPING[self.bin_number]
-        print(self.showable,self.bin_number)
         self.save()
 
     def update_incorrect(self):

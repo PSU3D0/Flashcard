@@ -133,3 +133,4 @@ STATIC_ROOT = os.path.join(BASE_DIR, os.environ.get("STATIC_ROOT",'static_cdn'))
 
 
 LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = '/accounts/login/'

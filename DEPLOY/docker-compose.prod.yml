@@ -2,21 +2,24 @@ version: '3.7'
 
 services:
   web:
-    restart: always
-    build: ../FlashcardApp
-    command: gunicorn FlashcardApp.wsgi:application -w 2 -b :8000
+    build: 
+      context: ../FlashcardApp
+      dockerfile: Dockerfile.prod
+    image: 329373141069.dkr.ecr.us-east-1.amazonaws.com/flashcard:web
+    command: gunicorn FlashcardApp.wsgi:application -w 2 -b 0.0.0.0:8000
     volumes:
-      - ../FlashcardApp/:/usr/src/app/
-      - ../FlashcardApp/static_cdn/:/usr/src/app/static_cdn
+      - ../FlashcardApp/:/app
+      - ../FlashcardApp/static_cdn/:/app/static_cdn
     expose:
       - 8000
     env_file:
-      - ./.env.dev
+      - ./.env.prod
   nginx:
     build: ./nginx
+    image: 329373141069.dkr.ecr.us-east-1.amazonaws.com/flashcard:nginx
     ports:
       - 80:80
     volumes: 
-      - ../FlashcardApp/static/:/static_cdn
+      - ../FlashcardApp/static_cdn/:/static
     depends_on:
       - web

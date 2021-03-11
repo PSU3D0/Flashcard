@@ -2,10 +2,16 @@
 
 {% block extra_css %}
     <style>
+
+        p, h4 {
+            transition: width 1s;
+        }
         
         .card-container {
             perspective: 700px;
             cursor: pointer;
+            height: 100px;
+            width: 370px;
         }
 
         .card-flip, .card-container {
@@ -83,7 +89,7 @@
                     $("#errorMessage").html(data.Message);
                 }
                 else {
-                    console.log(data.data)
+                    $("#errorMessage").html("");
                     $("#vocabWord").html(data.data.word)
                     $("#vocabDefinition").html(data.data.definition)
                     $("#flashCard").attr("card-id",data.data.id)
@@ -104,6 +110,7 @@
     }
 
     $(document).ready(function(){
+        const timeout = 800;
 
         recheckInterval = setInterval(recheck,60000) //Every 60 seconds
         
@@ -122,34 +129,34 @@
 
             //Disable buttons and hide text
             $(".answer-btn").prop("disabled",true)
-            $(".card-txt").slideToggle();
-            
-            //Get user answer
-            if ($(this).attr('id') == 'answer_wrong'){
+            $(".card-container").removeClass('flipped');
+            $(".card-txt").slideToggle(timeout);
+
+            setTimeout(function(){
+                if ($(this).attr('id') == 'answer_wrong'){
                 var correct = false;
-            }
-            else {
-                var correct = true;
-            }
-            //Update card data via ajax
-            $.ajax({
-                url: "{% url 'update-flashcard' %}",
-                type: "POST",
-                data: {
-                    "correct": correct,
-                    "flashcard_id": $("#flashCard").attr("card-id")
-                },
-                dataType: 'json',
-                success: function(){
-                    getLatestData()
-                    $(".card-txt").slideToggle();
                 }
+                else {
+                    var correct = true;
+                }
+                //Update card data via ajax
+                $.ajax({
+                    url: "{% url 'update-flashcard' %}",
+                    type: "POST",
+                    data: {
+                        "correct": correct,
+                        "flashcard_id": $("#flashCard").attr("card-id")
+                    },
+                    dataType: 'json',
+                    success: function(){
+                        getLatestData()
+                        $(".card-txt").slideToggle();
+                    }
 
-            });
-            
+                });
 
-
-
+            },timeout)
+            //Get user answer
         })
     });
     

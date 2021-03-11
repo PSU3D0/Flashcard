@@ -3,3 +3,6 @@
 .env.prod
 /FlashcardApp/static_cdn
 **/__pycache__
+./DEPLOY/.env.prod
+ec2_deploy.sh
+**/migrations/

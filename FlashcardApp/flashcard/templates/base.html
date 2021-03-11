@@ -28,6 +28,11 @@
       <header class="masthead mb-auto">
         <div class="inner">
           <h3>Spaced Repitition</h3>
+          {% if user.is_authenticated %}
+          <nav>
+            <a class="nav-link active" href="accounts/logout/">Logout</a>
+          </nav>
+          {% endif %}
         </div>
       </header>
 
