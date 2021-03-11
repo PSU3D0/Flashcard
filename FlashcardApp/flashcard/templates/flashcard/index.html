@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+    <style>
+        
+        .card-container {
+            perspective: 700px;
+            cursor: pointer;
+        }
+
+        .card-flip, .card-container {
+            transform-style: preserve-3d;
+            transition: all 0.7s ease;
+        }
+
+        .card-flip div {
+            backface-visibility: hidden;
+            transform-style: preserve-3d;
+        }
+
+        .back {
+            transform: rotateY(-180deg);
+        }
+
+        .card-container.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .btn {
+            margin-top: 20px;
+        }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="card-container">
+    <div id="flashCard" card-id="" class="card-flip">
+        <div class="front">
+            <h4 id="vocabWord" class="card-txt"></h4>
+        </div>
+        <div class="back">
+            <p id="vocabDefinition" class="card-txt"></p>
+        </div>
+            
+    </div>
+    
+</div>
+<div class="row">
+    <div class="col">
+        <button id="answer_wrong" class="btn btn-danger answer-btn">Didnt Get It.</button>
+    </div>
+    <div class="col">
+        <button id="answer-right" class="btn btn-success answer-btn">Got It!</button>
+    </div>
+    
+</div>
+<br>
+<div class="row">
+    <h2 id="errorMessage"></h2>
+</div>
+
+
+{% endblock %}
+
+
+
+{% block extra_javascript %}
+
+<script>
+    function getLatestData(){
+        //Clear card, disable button
+        $(".answer-btn").prop("disabled",true)
+        $("#vocabWord").html("")
+        $("#vocabDefinition").html("")
+
+        $.ajax({
+            url: "{% url 'latest-flashcard' %}",
+            dataType: 'json',
+            success: function(data){
+                console.log(data)
+                if(data.empty){
+                    $("#errorMessage").html(data.Message);
+                }
+                else {
+                    console.log(data.data)
+                    $("#vocabWord").html(data.data.word)
+                    $("#vocabDefinition").html(data.data.definition)
+                    $("#flashCard").attr("card-id",data.data.id)
+
+                    $(".answer-btn").prop("disabled",false)
+                }
+            }
+        });
+    
+    }
+
+    function recheck(){
+        //Long term issue with a permeanent completion,
+        //we'd keep sending AJAX calls!
+        if ($(".answer-btn").prop("disabled") == true){
+            getLatestData()
+        }
+    }
+
+    $(document).ready(function(){
+
+        recheckInterval = setInterval(recheck,60000) //Every 60 seconds
+        
+        var correct = false;
+        //Get initial data
+        getLatestData()
+        
+        //Handler for flipping container
+        $(".card-container").click(function(){
+            $(this).toggleClass('flipped');
+        })
+        
+
+        //When either answer button is clicked
+        $('.answer-btn').click(function() {
+
+            //Disable buttons and hide text
+            $(".answer-btn").prop("disabled",true)
+            $(".card-txt").slideToggle();
+            
+            //Get user answer
+            if ($(this).attr('id') == 'answer_wrong'){
+                var correct = false;
+            }
+            else {
+                var correct = true;
+            }
+            //Update card data via ajax
+            $.ajax({
+                url: "{% url 'update-flashcard' %}",
+                type: "POST",
+                data: {
+                    "correct": correct,
+                    "flashcard_id": $("#flashCard").attr("card-id")
+                },
+                dataType: 'json',
+                success: function(){
+                    getLatestData()
+                    $(".card-txt").slideToggle();
+                }
+
+            });
+            
+
+
+
+        })
+    });
+    
+
+
+</script>
+
+{% endblock %}

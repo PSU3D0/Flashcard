@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+  web:
+    restart: always
+    build: ../FlashcardApp
+    command: gunicorn FlashcardApp.wsgi:application -w 2 -b :8000
+    volumes:
+      - ../FlashcardApp/:/usr/src/app/
+      - ../FlashcardApp/static_cdn/:/usr/src/app/static_cdn
+    expose:
+      - 8000
+    env_file:
+      - ./.env.dev
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:80
+    volumes: 
+      - ../FlashcardApp/static/:/static_cdn
+    depends_on:
+      - web

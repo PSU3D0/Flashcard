@@ -1,0 +1,5 @@
+/env
+/.vscode
+.env.prod
+/FlashcardApp/static_cdn
+**/__pycache__

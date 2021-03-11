@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div>
+    <h1>Register</h1>
+    <br>
+    {% load widget_tweaks %}
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form.visible_fields %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field|add_class:'form-control' }}
+            {% for error in field.errors %}
+            <span class="help-block">{{ error }}</span>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        <input style="margin: 10px" class="btn btn-success" type="submit" value="Register">
+        <br>
+        
+    </form>
+    <a style="color: lightblue;" href="{% url 'login' %}">Login</a>
+</div>
+{% endblock %}
